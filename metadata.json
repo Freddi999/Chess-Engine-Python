@@ -1,0 +1,5 @@
+
+{
+  "name": "React Chess Engine",
+  "description": "A sleek and modern chess application where you can play against a configurable computer opponent. The engine uses the minimax algorithm with alpha-beta pruning. Features include variable difficulty, move history, and material advantage display."
+}
