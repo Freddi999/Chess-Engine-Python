@@ -178,7 +178,6 @@ def get_best_move(fen, depth):
         if not legal_moves:
             return None
         
-        # Shuffle moves for variety when evaluations are equal
         import random
         random.shuffle(legal_moves)
         
@@ -215,45 +214,33 @@ def get_best_move(fen, depth):
         print(f"Error: {e}")
         return None
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            # Read request body
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
-            
-            fen = data.get('fen')
-            depth = data.get('depth', 2)
-            
-            if not fen:
-                self.send_response(400)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'FEN is required'}).encode())
-                return
-            
-            # Get best move
-            best_move = get_best_move(fen, depth)
-            
-            # Send response
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            
-            response = {'move': best_move}
-            self.wfile.write(json.dumps(response).encode())
-            
-        except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
+def handler(request):
+    try:
+        body = json.loads(request.body)
+        fen = body.get('fen')
+        depth = body.get('depth', 2)
+
+        if not fen:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'FEN is required'})
+            }
+
+        best_move = get_best_move(fen, depth)
+
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json'
+                # don't add Access-Control-Allow-Origin here if your frontend is same-origin;
+                # if you must, include a single valid value, e.g. 'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'move': best_move})
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'error': str(e)})
+        }
