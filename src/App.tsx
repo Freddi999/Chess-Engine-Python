@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Chessboard from './components/Chessboard';
 import ControlPanel from './components/ControlPanel';
 import GameSetupModal from './components/GameSetupModal';
-import { getBestMove } from './src/services/chessEngineService';
+import { getBestMove } from './services/chessEngineService';
 import { Square } from './types';
 
 // The chess.js library is loaded from a CDN in index.html, so we declare it here.
